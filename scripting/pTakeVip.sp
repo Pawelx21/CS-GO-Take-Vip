@@ -69,6 +69,11 @@ public void OnPluginStart() {
 	Logs.SetPluginName(PLUGIN_NAME);
 }
 
+public void OnPluginEnd() {
+	LoopValidClients(i)
+	g_eInfo[i].bVip = false;
+}
+
 /* [ Standard Actions ] */
 public void OnConfigsExecuted() {
 	LoadConfig();
@@ -79,14 +84,18 @@ public void OnMapStart() {
 	g_eInfo[i].bVip = false;
 }
 public void OnClientPostAdminCheck(int iClient) {
-	if (IsValidClient(iClient) && g_eInfo[iClient].bVip)
-		GiveClientFlags(iClient);
+	if (IsValidClient(iClient)) {
+		if (g_eCore.iCvar[CVAR_REMOVE_VIP_ON_DISCONNECT])
+			g_eInfo[iClient].bVip = false;
+		else if (g_eInfo[iClient].bVip)
+			GiveClientFlags(iClient);
+	}
 }
 
 public void OnClientDisconnect(int iClient) {
 	if (IsValidClient(iClient)) {
 		if (g_eCore.iCvar[CVAR_REMOVE_VIP_ON_DISCONNECT] && g_eInfo[iClient].bVip) {
-			CPrintToChatAll("%s {lime}%N{default} własnie wyszedł z serwera. Do odebrania jest {lime}Vip{default} pod komendą {lime}!wezvip{default}.", g_eCore.sChatTag);
+			CPrintToChatAll("%s {lime}%N{default} własnie wyszedł z serwera. Do odebrania jest {lime}Vip{default} pod komendą {lime}!wezvip{default}.", g_eCore.sChatTag, iClient);
 			g_eInfo[iClient].bVip = false;
 			g_eCore.iCvar[CVAR_VIPS_NUM]++;
 		}
